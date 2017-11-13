@@ -7,22 +7,32 @@ class Ship {
 
  constructor() {
 
-   this.hitpoints = 100;
-   this.submodules = {
+  this.hitpoints = 100;
+  this.submodules = {
     missileLauncher: {
       status: 'OK',
       missilesLaunched: []
     }
   };
+  this.round = 0;
 }
 
  // Method
 
- nextRound() {
+  nextRound() {
+    ++this.round;
+    this.submodules.missileLauncher.missilesLaunched.forEach((target, index) => {
+      --target.distance;
 
+      // hit target and remove missiles
+      if (target.distance === 0) {
+        target.hit();
+        this.submodules.missileLauncher.missilesLaunched.splice(index);
+      }
+    });
   }
 
- damageShip(dmg) {
+  damageShip(dmg) {
     this.hitpoints -= dmg;
   }
 
@@ -40,7 +50,13 @@ class Ship {
   }
 
   fireMissile(target) {
-    this.missileLauncher.missilesLaunched.push(target);
+    if (this.submodules.missileLauncher.status === 'DAMAGED') {
+      --this.hitpoints;
+    } else if (this.submodules.missileLauncher.status === 'DESTROYED') {
+      return;
+    }
+
+    this.submodules.missileLauncher.missilesLaunched.push(target);
   }
 
 }
